@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Калькулятор туризма — Civilization V</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #131a33;
+      --accent: #7aa2ff;
+      --text: #e7eaf6;
+      --muted: #aab2d5;
+      --border: #2a355f;
+      --good: #65d09b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+      background: radial-gradient(1200px 800px at 10% 0%, #0d1430, var(--bg));
+      color: var(--text);
+      margin: 0; padding: 24px; line-height: 1.45;
+    }
+    h1 { font-size: 1.6rem; margin: 0 0 16px; }
+    .wrap { max-width: 980px; margin: 0 auto; display: grid; gap: 16px; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    @media (min-width: 840px) { .grid { grid-template-columns: 1.2fr 1fr; } }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent 40%), var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .card h2 { font-size: 1.05rem; margin: 0 0 10px; color: var(--accent); }
+
+    .field { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; margin: 8px 0; }
+    .field > label { color: var(--muted); font-size: 0.95rem; }
+    .field input[type="number"], .field input[type="text"] {
+      width: 160px; justify-self: end; padding: 10px 12px; border-radius: 12px;
+      border: 1px solid var(--border); background: #0e1430; color: var(--text);
+      outline: none; transition: border 0.15s ease;
+    }
+    .field input:focus { border-color: var(--accent); }
+
+    .checks { display: grid; gap: 10px; }
+    .check {
+      display: grid; grid-template-columns: 24px 1fr; gap: 12px; align-items: start;
+      padding: 10px 12px; border-radius: 12px; border: 1px dashed var(--border);
+    }
+    .check input { margin-top: 3px; }
+    .hint { color: var(--muted); font-size: 0.88rem; }
+
+    .out {
+      display: grid; gap: 10px; margin-top: 6px;
+    }
+    .out .row { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px dashed var(--border); padding: 6px 0; }
+    .out .label { color: var(--muted); }
+    .out .value { font-variant-numeric: tabular-nums; font-weight: 700; }
+    .out .big { font-size: 1.4rem; color: var(--good); }
+
+    .toolbar { display: flex; gap: 10px; margin-top: 12px; }
+    button {
+      padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border);
+      background: #10183a; color: var(--text); cursor: pointer; font-weight: 600;
+    }
+    button:hover { border-color: var(--accent); }
+    .muted { opacity: 0.9; }
+    .formula { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; background: #0e1430; border: 1px solid var(--border); padding: 12px; border-radius: 12px; color: #d7defa; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Калькулятор туризма — Civilization V</h1>
+    <div class="grid">
+      <section class="card">
+        <h2>Входные данные</h2>
+        <div class="checks" id="checks">
+          <div class="check">
+            <input type="checkbox" id="towerPolicy" />
+            <label for="towerPolicy"><strong>1) Радиовышка + политика</strong><br><span class="hint">Если выбрано, к <em>T</em> прибавляем <code>0.33 × N</code>.</span></label>
+          </div>
+          <div class="check">
+            <input type="checkbox" id="internet" />
+            <label for="internet"><strong>2) Интернет</strong><br><span class="hint">Если выбрано, к <em>T</em> прибавляем ещё <code>N</code>.</span></label>
+          </div>
+          <div class="check">
+            <input type="checkbox" id="hotel" />
+            <label for="hotel"><strong>3) Отель</strong><br><span class="hint">Если выбрано, к <em>N</em> прибавляем <code>0.5 × X</code>.</span></label>
+          </div>
+          <div class="check">
+            <input type="checkbox" id="airport" />
+            <label for="airport"><strong>4) Аэропорт</strong><br><span class="hint">Если выбрано, к <em>N</em> прибавляем <code>0.5 × X</code>.</span></label>
+          </div>
+          <div class="check">
+            <input type="checkbox" id="infoCenter" />
+            <label for="infoCenter"><strong>5) Инфоцентр</strong><br><span class="hint">Если выбрано, к <em>N</em> прибавляем <code>1 × X</code>.</span></label>
+          </div>
+          <div class="check">
+            <input type="checkbox" id="masterpiecePolicy" />
+            <label for="masterpiecePolicy"><strong>6) Политика на шедевры</strong><br><span class="hint">Если выбрано, множитель <em>S = 6</em>, иначе <em>S = 4</em>.</span></label>
+          </div>
+        </div>
+
+        <div class="field"><label for="Y">Сумма чемоданов от тематического бонуса, <strong>Y</strong></label><input id="Y" type="text" inputmode="decimal" placeholder="например, 12" value="0" /></div>
+        <div class="field"><label for="Z">Сумма шедевров в столице, <strong>Z</strong></label><input id="Z" type="text" inputmode="decimal" placeholder="например, 5" value="0" /></div>
+        <div class="field"><label for="L">Культура от обработанных клеток (минус под городом), <strong>L</strong></label><input id="L" type="text" inputmode="decimal" placeholder="например, 14" value="0" /></div>
+        <div class="field"><label for="W">Культура от чудес (без нац. чудес и домиков), <strong>W</strong></label><input id="W" type="text" inputmode="decimal" placeholder="например, 10" value="0" /></div>
+
+        <div class="toolbar">
+          <button id="reset">Сбросить</button>
+          <button id="copy">Скопировать результаты</button>
+        </div>
+
+        <p class="hint muted">Подсказка: можно вводить числа с запятой или точкой — калькулятор поймёт оба варианта.</p>
+      </section>
+
+      <section class="card">
+        <h2>Результаты</h2>
+        <div class="out">
+          <div class="row"><span class="label">Множитель шедевров <strong>S</strong></span><span class="value" id="S">4</span></div>
+          <div class="row"><span class="label">Промежуточная сумма <strong>X = Z·S + L + W</strong></span><span class="value" id="X">0</span></div>
+          <div class="row"><span class="label">Базовая сумма <strong>N = Y + X (+ надбавки из 3–5)</strong></span><span class="value" id="N">0</span></div>
+          <div class="row"><span class="label">Итоговый туризм <strong class="big">T</strong></span><span class="value big" id="T">0</span></div>
+        </div>
+        <details style="margin-top:10px">
+          <summary class="hint">Показать развёрнутый расчёт</summary>
+          <pre class="formula" id="explain"></pre>
+        </details>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    const inputs = ["Y","Z","L","W"].map($);
+    const checks = ["towerPolicy","internet","hotel","airport","infoCenter","masterpiecePolicy"].map($);
+
+    const SOut = $("S"), XOut = $("X"), NOut = $("N"), TOut = $("T"), Explain = $("explain");
+
+    const parseNum = (v) => {
+      // поддержка запятой как десятичного разделителя
+      if (typeof v === 'string') v = v.replace(/\s+/g, '').replace(',', '.');
+      const n = parseFloat(v);
+      return Number.isFinite(n) ? n : 0;
+    };
+
+    function fmt(n) {
+      // до 2 знаков, без лишних нулей
+      const rounded = Math.round(n * 100) / 100;
+      return rounded.toLocaleString('ru-RU', { maximumFractionDigits: 2 });
+    }
+
+    function recompute() {
+      const Y = parseNum($("Y").value);
+      const Z = parseNum($("Z").value);
+      const L = parseNum($("L").value);
+      const W = parseNum($("W").value);
+
+      const hasTowerPolicy = $("towerPolicy").checked;   // +0.33*N к T
+      const hasInternet = $("internet").checked;         // +1*N к T
+      const hasHotel = $("hotel").checked;               // +0.5*X к N
+      const hasAirport = $("airport").checked;           // +0.5*X к N
+      const hasInfo = $("infoCenter").checked;           // +1*X к N
+      const hasMasterpiecePolicy = $("masterpiecePolicy").checked; // S=6 иначе 4
+
+      const S = hasMasterpiecePolicy ? 6 : 4;
+      const X = Z * S + L + W;
+
+      let N = Y + X;
+      if (hasHotel)   N += 0.5 * X;
+      if (hasAirport) N += 0.5 * X;
+      if (hasInfo)    N += 1.0 * X;
+
+      let T = N;
+      if (hasTowerPolicy) T += 0.33 * N;
+      if (hasInternet)    T += 1.00 * N;
+
+      // Вывод значений
+      SOut.textContent = fmt(S);
+      XOut.textContent = fmt(X);
+      NOut.textContent = fmt(N);
+      TOut.textContent = fmt(T);
+
+      // Развёрнутый расчёт
+      const partsN = ["Y", "X"].concat([
+        hasHotel ? "0.5·X" : null,
+        hasAirport ? "0.5·X" : null,
+        hasInfo ? "1·X" : null,
+      ].filter(Boolean));
+
+      const partsT = ["N"].concat([
+        hasTowerPolicy ? "0.33·N" : null,
+        hasInternet ? "1·N" : null,
+      ].filter(Boolean));
+
+      Explain.textContent = [
+        `S = ${hasMasterpiecePolicy ? '6 (политика выбрана)' : '4 (без политики)'}`,
+        `X = Z·S + L + W = ${fmt(Z)}·${fmt(S)} + ${fmt(L)} + ${fmt(W)} = ${fmt(X)}`,
+        `N = ${partsN.join(' + ')} = ${fmt(Y)} + ${fmt(X)}${hasHotel ? ' + ' + fmt(0.5*X) : ''}${hasAirport ? ' + ' + fmt(0.5*X) : ''}${hasInfo ? ' + ' + fmt(1*X) : ''} = ${fmt(N)}`,
+        `T = ${partsT.join(' + ')} = ${fmt(N)}${hasTowerPolicy ? ' + ' + fmt(0.33*N) : ''}${hasInternet ? ' + ' + fmt(1*N) : ''} = ${fmt(T)}`
+      ].join('\n');
+    }
+
+    // Навешиваем события
+    [...inputs, ...checks].forEach(el => {
+      el.addEventListener('input', recompute);
+      el.addEventListener('change', recompute);
+    });
+
+    // Кнопки
+    $("reset").addEventListener('click', () => {
+      inputs.forEach(i => i.value = '0');
+      checks.forEach(c => c.checked = false);
+      recompute();
+    });
+
+    $("copy").addEventListener('click', async () => {
+      const text = `S: ${SOut.textContent}\nX: ${XOut.textContent}\nN: ${NOut.textContent}\nT: ${TOut.textContent}`;
+      try {
+        await navigator.clipboard.writeText(text);
+        const btn = $("copy");
+        const old = btn.textContent;
+        btn.textContent = 'Скопировано!';
+        setTimeout(() => btn.textContent = old, 1200);
+      } catch (e) {
+        alert('Не удалось скопировать: ' + e);
+      }
+    });
+
+    // Первый расчёт
+    recompute();
+  </script>
+</body>
+</html>
