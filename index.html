@@ -7,100 +7,174 @@
   <style>
     :root {
       --bg: #0b1020;
-      --card: #131a33;
+      --card: #0f1633;
       --accent: #7aa2ff;
       --text: #e7eaf6;
       --muted: #aab2d5;
       --border: #2a355f;
       --good: #65d09b;
+      --glow: rgba(122,162,255,0.25);
     }
     * { box-sizing: border-box; }
     body {
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans';
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial;
       background: radial-gradient(1200px 800px at 10% 0%, #0d1430, var(--bg));
       color: var(--text);
       margin: 0; padding: 24px;
     }
-    h1 { font-size: 1.6rem; margin-bottom: 16px; }
-    .wrap { max-width: 980px; margin: 0 auto; display: grid; gap: 16px; }
-    .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
-    @media (min-width: 840px) { .grid { grid-template-columns: 1.2fr 1fr; } }
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px 18px; }
-    .field { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; margin: 8px 0; }
-    .checks { display: grid; gap: 10px; }
-    .check { display: grid; grid-template-columns: 24px 1fr; gap: 12px; align-items: start; padding: 10px 12px; border-radius: 12px; border: 1px dashed var(--border); }
-    .out .row { display: flex; justify-content: space-between; border-bottom: 1px dashed var(--border); padding: 6px 0; }
-    button { padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border); background: #10183a; color: var(--text); cursor: pointer; }
+    h1 { font-size: 1.8rem; margin-bottom: 16px; text-align: center; }
+    .wrap { max-width: 900px; margin: 0 auto; display: grid; gap: 20px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05); }
+
+    .checklist { display: grid; gap: 12px; }
+    .check { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.03); border-radius: 12px; padding: 8px 12px; border: 1px solid var(--border); }
+    .check img { width: 40px; height: 30px; object-fit: contain; flex: 0 0 auto; }
+    label { cursor: pointer; font-size: 1rem; }
+
+    .field { display: flex; justify-content: space-between; align-items: center; margin: 10px 0; gap: 12px; }
+    .field input { width: 160px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border); background: #0e1430; color: var(--text); }
+
+    button { padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border); background: #10183a; color: var(--text); cursor: pointer; margin-top: 10px; }
+    button:hover { border-color: var(--accent); }
+
+    /* Результат с новым стилем и «гирляндой чемоданов» */
+    .result-card { position: relative; border-radius: 24px; padding: 32px 24px; overflow: hidden;
+      background: radial-gradient(120% 140% at 10% 10%, rgba(122,162,255,0.16), transparent 55%),
+                  radial-gradient(140% 160% at 90% 90%, rgba(101,208,155,0.18), transparent 60%),
+                  linear-gradient(180deg, rgba(255,255,255,0.03), transparent 40%), var(--card);
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.45), 0 0 0 6px rgba(122,162,255,0.06) inset;
+      min-height: 140px;
+    }
+    .result-inner { position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+    .result-title { font-weight: 900; letter-spacing: 0.3px; font-size: 1.8rem; text-transform: uppercase; color: #fff;
+      -webkit-text-stroke: 0.05em #000;
+      text-shadow: 0 0.08em 0.15em rgba(0,0,0,0.9), 0 0 0.25em rgba(0,0,0,0.8);
+    }
+    .result-value { font-size: 2.4rem; font-variant-numeric: tabular-nums; color: var(--good); font-weight: 900; text-shadow: 0 0 16px rgba(101,208,155,0.25); }
+
+    /* чемоданы-звёзды */
+    .garland { position: absolute; inset: 0; z-index: 1; }
+    .suitcase { position: absolute; width: 20px; height: 20px; filter: drop-shadow(0 0 6px rgba(122,162,255,0.25)); opacity: 0.95; transform-origin: center; }
+    .shine { position: absolute; inset: -20%; background: radial-gradient(closest-side, rgba(122,162,255,0.08), transparent 70%); z-index: 2; pointer-events: none; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <h1>Калькулятор туризма — Civilization V</h1>
-    <div class="grid">
-      <section class="card">
-        <h2>Параметры</h2>
-        <div class="checks">
-          <div class="check"><input type="checkbox" id="towerPolicy"><label for="towerPolicy">1) Радиовышка + политика</label></div>
-          <div class="check"><input type="checkbox" id="internet"><label for="internet">2) Интернет</label></div>
-          <div class="check"><input type="checkbox" id="hotel"><label for="hotel">3) Отель</label></div>
-          <div class="check"><input type="checkbox" id="airport"><label for="airport">4) Аэропорт</label></div>
-          <div class="check"><input type="checkbox" id="infoCenter"><label for="infoCenter">5) Инфоцентр</label></div>
-          <div class="check"><input type="checkbox" id="masterpiecePolicy"><label for="masterpiecePolicy">6) Политика на шедевры</label></div>
-        </div>
-        <div class="field"><label for="Y">Y — чемоданы от тематического бонуса</label><input id="Y" type="number" value="0"></div>
-        <div class="field"><label for="Z">Z — шедевры в столице</label><input id="Z" type="number" value="0"></div>
-        <div class="field"><label for="L">L — культура от клеток</label><input id="L" type="number" value="0"></div>
-        <div class="field"><label for="W">W — культура от чудес</label><input id="W" type="number" value="0"></div>
-        <button id="reset">Сброс</button>
-      </section>
-      <section class="card">
-        <h2>Результаты</h2>
-        <div class="out">
-          <div class="row"><span>S</span><span id="S">0</span></div>
-          <div class="row"><span>X = Z·S + L + W</span><span id="X">0</span></div>
-          <div class="row"><span>N</span><span id="N">0</span></div>
-          <div class="row"><span>T</span><span id="T">0</span></div>
-        </div>
-      </section>
-    </div>
+
+    <section class="card">
+      <div class="checklist">
+        <div class="check"><input type="checkbox" id="towerPolicy"><img src="https://static.wikia.nocookie.net/civilization/images/a/a1/Broadcast_Tower_%28Civ5%29.png/revision/latest?cb=20210316210906" alt="Радиовышка"><label for="towerPolicy">Радиовышка с соответствующей политикой (добавляет 33% к общему результату)</label></div>
+        <div class="check"><input type="checkbox" id="internet"><img src="https://static.wikia.nocookie.net/civilization/images/2/25/The_Internet_%28Civ5%29.png/revision/latest?cb=20210317205620" alt="Интернет"><label for="internet">Интернет (увеличивает итог в 2 раза за счёт добавления ещё одного базового значения)</label></div>
+        <div class="check"><input type="checkbox" id="games"><img src="https://static.wikia.nocookie.net/civilization/images/1/1f/International_Project_%28Civ5%29.png/revision/latest/smart/width/40/height/30?cb=20210321205657" alt="Международные игры"><label for="games">Международные игры (работает как Интернет — добавляет ещё одно базовое значение)</label></div>
+        <div class="check"><input type="checkbox" id="hotel"><img src="https://static.wikia.nocookie.net/civilization/images/4/4c/Hotel_%28Civ5%29.png/revision/latest?cb=20210316203457" alt="Отель"><label for="hotel">Отель (прибавляет половину промежуточной суммы от культуры/шедевров к базе)</label></div>
+        <div class="check"><input type="checkbox" id="airport"><img src="https://static.wikia.nocookie.net/civilization/images/2/21/Airport_%28Civ5%29.png/revision/latest?cb=20210316203308" alt="Аэропорт"><label for="airport">Аэропорт (ещё половина той же промежуточной суммы к базе)</label></div>
+        <div class="check"><input type="checkbox" id="infoCenter"><img src="https://static.wikia.nocookie.net/civilization/images/4/4a/National_Visitor_Center_%28Civ5%29.png/revision/latest?cb=20210312151228" alt="Инфоцентр"><label for="infoCenter">Национальный инфоцентр (добавляет полную промежуточную сумму к базе)</label></div>
+        <div class="check"><input type="checkbox" id="masterpiecePolicy"><img src="https://static.wikia.nocookie.net/civilization/images/5/54/Great_Work_of_Art_%28Civ5%29.png/revision/latest?cb=20210321204715" alt="Шедевр"><label for="masterpiecePolicy">Политика, усиливающая вклад шедевров (делает вклад шедевров сильнее)</label></div>
+      </div>
+
+      <div class="field"><label for="Y">Бонус от тематического размещения</label><input id="Y" type="text" inputmode="decimal" value="0"></div>
+      <div class="field"><label for="Z">Количество шедевров в столице</label><input id="Z" type="text" inputmode="decimal" value="0"></div>
+      <div class="field"><label for="L">Культура с обработанных клеток (без клетки города)</label><input id="L" type="text" inputmode="decimal" value="0"></div>
+      <div class="field"><label for="W">Культура от чудес (без нац. чудес и кварталов)</label><input id="W" type="text" inputmode="decimal" value="0"></div>
+      <button id="reset">Сбросить значения</button>
+    </section>
+
+    <section class="result-card" aria-live="polite">
+      <div class="garland" id="garland"></div>
+      <div class="shine"></div>
+      <div class="result-inner">
+        <div class="result-title">Общий туризм</div>
+        <div class="result-value" id="T">0</div>
+      </div>
+    </section>
   </div>
-<script>
-const $ = id => document.getElementById(id);
-const inputs = ['Y','Z','L','W'].map($);
-const checks = ['towerPolicy','internet','hotel','airport','infoCenter','masterpiecePolicy'].map($);
-const SOut=$('S'),XOut=$('X'),NOut=$('N'),TOut=$('T');
 
-function parseNum(v){return parseFloat((v+'').replace(',', '.'))||0;}
-function fmt(n){return (Math.round(n*100)/100).toLocaleString('ru-RU',{maximumFractionDigits:2});}
+  <script>
+    const $ = id => document.getElementById(id);
+    const inputs = ['Y','Z','L','W'].map($);
+    const checks = ['towerPolicy','internet','games','hotel','airport','infoCenter','masterpiecePolicy'].map($);
+    const TOut = $('T');
 
-function recompute(){
-  const Y=parseNum($('Y').value),Z=parseNum($('Z').value),L=parseNum($('L').value),W=parseNum($('W').value);
-  const hasTower=$('towerPolicy').checked;
-  const hasInternet=$('internet').checked;
-  const hasHotel=$('hotel').checked;
-  const hasAirport=$('airport').checked;
-  const hasInfo=$('infoCenter').checked;
-  const hasMP=$('masterpiecePolicy').checked;
-  const S=hasMP?6:4;
-  const X=Z*S+L+W;
-  let N=Y+Z*S; // теперь Z*S входит напрямую
-  let extra=0;
-  if(hasHotel)extra+=0.5*X;
-  if(hasAirport)extra+=0.5*X;
-  if(hasInfo)extra+=1*X;
-  if(extra>0)N+=extra; // X добавляем только если есть хотя бы один из пунктов 3–5
-  let T=N;
-  if(hasTower)T+=0.33*N;
-  if(hasInternet)T+=N;
-  SOut.textContent=fmt(S);
-  XOut.textContent=fmt(X);
-  NOut.textContent=fmt(N);
-  TOut.textContent=fmt(T);
-}
+    function parseNum(v){ return parseFloat((v+'').replace(/\s+/g,'').replace(',', '.'))||0; }
+    function fmt(n){ return (Math.round(n*100)/100).toLocaleString('ru-RU',{maximumFractionDigits:2}); }
 
-inputs.concat(checks).forEach(e=>{e.addEventListener('input',recompute);e.addEventListener('change',recompute);});
-$('reset').addEventListener('click',()=>{inputs.forEach(i=>i.value='0');checks.forEach(c=>c.checked=false);recompute();});
-recompute();
-</script>
+    function recompute(){
+      const Y=parseNum($('Y').value), Z=parseNum($('Z').value), L=parseNum($('L').value), W=parseNum($('W').value);
+      const hasTower=$('towerPolicy').checked;
+      const hasInternet=$('internet').checked;
+      const hasGames=$('games').checked;
+      const hasHotel=$('hotel').checked;
+      const hasAirport=$('airport').checked;
+      const hasInfo=$('infoCenter').checked;
+      const hasMP=$('masterpiecePolicy').checked;
+
+      const S = hasMP ? 6 : 4;
+      const X = Z*S + L + W;
+      let N = Y + Z*S;
+      let extra = 0;
+      if (hasHotel)   extra += 0.5*X;
+      if (hasAirport) extra += 0.5*X;
+      if (hasInfo)    extra += 1.0*X;
+      if (extra > 0) N += extra;
+
+      let T = N;
+      if (hasTower)   T += 0.33*N;
+      if (hasInternet)T += N;
+      if (hasGames)   T += N;
+
+      TOut.textContent = fmt(T);
+    }
+
+    inputs.concat(checks).forEach(e=>{ e.addEventListener('input',recompute); e.addEventListener('change',recompute); });
+    $('reset').addEventListener('click',()=>{ inputs.forEach(i=>i.value='0'); checks.forEach(c=>c.checked=false); recompute(); placeGarland(); });
+
+    const GARLAND_IMG = 'https://static.wikia.nocookie.net/civilization/images/a/a4/20xTourism5.png/revision/latest?cb=20140828185800';
+    const garland = $('garland');
+
+    function placeGarland(){
+      garland.innerHTML = '';
+      const box = garland.getBoundingClientRect();
+      const w = box.width || garland.offsetWidth;
+      const h = box.height || garland.offsetHeight;
+
+      const count = Math.max(60, Math.round((w+h)/10));
+      for(let i=0;i<count;i++){
+        const t = i/(count-1);
+        const per = 2*(w+h);
+        let d = t*per;
+        let x=0,y=0;
+        if(d < w){ x=d; y=0; }
+        else if(d < w+h){ x=w; y=d-w; }
+        else if(d < w+h+w){ x=w-(d-(w+h)); y=h; }
+        else { x=0; y=h-(d-(w+h+w)); }
+
+        const jitter = 18 + Math.random()*34;
+        const inward = (i%2===0) ? 1 : -1;
+        const edge = d < w ? [0,1] : d < w+h ? [-1,0] : d < w+h+w ? [0,-1] : [1,0];
+        x += edge[0]*jitter*inward + (Math.random()*14-7);
+        y += edge[1]*jitter*inward + (Math.random()*14-7);
+
+        const scale = 0.6 + Math.random()*0.9;
+        const rot = (Math.random()*50 - 25);
+
+        const img = new Image();
+        img.src = GARLAND_IMG;
+        img.alt = '';
+        img.className = 'suitcase';
+        img.style.left = `${x}px`;
+        img.style.top = `${y}px`;
+        img.style.transform = `translate(-50%, -50%) rotate(${rot}deg) scale(${scale})`;
+        garland.appendChild(img);
+      }
+    }
+
+    window.addEventListener('resize', placeGarland);
+
+    recompute();
+    placeGarland();
+setInterval(placeGarland, 100); // обновлять 5 раз в секунду (1000/5 = 200 мс)
+  </script>
 </body>
 </html>
