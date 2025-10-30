@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="referrer" content="no-referrer">
   <title>Калькулятор туризма — Civilization V</title>
   <style>
     :root {
@@ -38,12 +37,8 @@
     button { padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border); background: #10183a; color: var(--text); cursor: pointer; margin-top: 10px; }
     button:hover { border-color: var(--accent); }
 
-    /* Результат и чемоданы */
-    .result-card {
-      position: relative;
-      border-radius: 24px;
-      padding: 32px 24px;
-      overflow: hidden;
+    /* Результат с новым стилем и «гирляндой чемоданов» */
+    .result-card { position: relative; border-radius: 24px; padding: 32px 24px; overflow: hidden;
       background: radial-gradient(120% 140% at 10% 10%, rgba(122,162,255,0.16), transparent 55%),
                   radial-gradient(140% 160% at 90% 90%, rgba(101,208,155,0.18), transparent 60%),
                   linear-gradient(180deg, rgba(255,255,255,0.03), transparent 40%), var(--card);
@@ -51,39 +46,17 @@
       box-shadow: 0 12px 40px rgba(0,0,0,0.45), 0 0 0 6px rgba(122,162,255,0.06) inset;
       min-height: 140px;
     }
-    .result-inner {
-      position: relative; z-index: 3; display: flex;
-      flex-direction: column; align-items: center; gap: 8px; text-align: center;
-    }
-    .result-title {
-      font-weight: 900;
-      font-size: 1.8rem;
-      letter-spacing: 0.3px;
-      text-transform: uppercase;
-      color: #fff;
+    .result-inner { position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+    .result-title { font-weight: 900; letter-spacing: 0.3px; font-size: 1.8rem; text-transform: uppercase; color: #fff;
       -webkit-text-stroke: 0.05em #000;
       text-shadow: 0 0.08em 0.15em rgba(0,0,0,0.9), 0 0 0.25em rgba(0,0,0,0.8);
     }
-    .result-value {
-      font-size: 2.4rem;
-      font-variant-numeric: tabular-nums;
-      color: var(--good);
-      font-weight: 900;
-      text-shadow: 0 0 16px rgba(101,208,155,0.25);
-    }
+    .result-value { font-size: 2.4rem; font-variant-numeric: tabular-nums; color: var(--good); font-weight: 900; text-shadow: 0 0 16px rgba(101,208,155,0.25); }
 
+    /* чемоданы-звёзды */
     .garland { position: absolute; inset: 0; z-index: 1; }
-    .suitcase {
-      position: absolute;
-      width: 20px; height: 20px;
-      filter: drop-shadow(0 0 6px rgba(122,162,255,0.25));
-      opacity: 0.95;
-      transform-origin: center;
-    }
-    .shine { position: absolute; inset: -20%;
-      background: radial-gradient(closest-side, rgba(122,162,255,0.08), transparent 70%);
-      z-index: 2; pointer-events: none;
-    }
+    .suitcase { position: absolute; width: 20px; height: 20px; filter: drop-shadow(0 0 6px rgba(122,162,255,0.25)); opacity: 0.95; transform-origin: center; }
+    .shine { position: absolute; inset: -20%; background: radial-gradient(closest-side, rgba(122,162,255,0.08), transparent 70%); z-index: 2; pointer-events: none; }
   </style>
 </head>
 <body>
@@ -92,19 +65,19 @@
 
     <section class="card">
       <div class="checklist">
-        <div class="check"><input type="checkbox" id="towerPolicy"><img referrerpolicy="no-referrer" src="https://static.wikia.nocookie.net/civilization/images/a/a1/Broadcast_Tower_%28Civ5%29.png/revision/latest?cb=20210316210906"><label for="towerPolicy">Радиовышка с соответствующей политикой (добавляет 33%)</label></div>
-        <div class="check"><input type="checkbox" id="internet"><img referrerpolicy="no-referrer" src="https://static.wikia.nocookie.net/civilization/images/2/25/The_Internet_%28Civ5%29.png/revision/latest?cb=20210317205620"><label for="internet">Интернет (добавляет ещё одно базовое значение)</label></div>
-        <div class="check"><input type="checkbox" id="games"><img referrerpolicy="no-referrer" src="https://static.wikia.nocookie.net/civilization/images/1/1f/International_Project_%28Civ5%29.png/revision/latest?cb=20210321205657"><label for="games">Международные игры (работают как Интернет)</label></div>
-        <div class="check"><input type="checkbox" id="hotel"><img referrerpolicy="no-referrer" src="https://static.wikia.nocookie.net/civilization/images/4/4c/Hotel_%28Civ5%29.png/revision/latest?cb=20210316203457"><label for="hotel">Отель (прибавляет половину промежуточной суммы)</label></div>
-        <div class="check"><input type="checkbox" id="airport"><img referrerpolicy="no-referrer" src="https://static.wikia.nocookie.net/civilization/images/2/21/Airport_%28Civ5%29.png/revision/latest?cb=20210316203308"><label for="airport">Аэропорт (ещё половина той же суммы)</label></div>
-        <div class="check"><input type="checkbox" id="infoCenter"><img referrerpolicy="no-referrer" src="https://static.wikia.nocookie.net/civilization/images/4/4a/National_Visitor_Center_%28Civ5%29.png/revision/latest?cb=20210312151228"><label for="infoCenter">Инфоцентр (добавляет полную сумму)</label></div>
-        <div class="check"><input type="checkbox" id="masterpiecePolicy"><img referrerpolicy="no-referrer" src="https://static.wikia.nocookie.net/civilization/images/5/54/Great_Work_of_Art_%28Civ5%29.png/revision/latest?cb=20210321204715"><label for="masterpiecePolicy">Политика, усиливающая вклад шедевров</label></div>
+        <div class="check"><input type="checkbox" id="towerPolicy"><img src="https://static.wikia.nocookie.net/civilization/images/a/a1/Broadcast_Tower_%28Civ5%29.png/revision/latest?cb=20210316210906" alt="Радиовышка"><label for="towerPolicy">Радиовышка с соответствующей политикой (добавляет 33% к общему результату)</label></div>
+        <div class="check"><input type="checkbox" id="internet"><img src="https://static.wikia.nocookie.net/civilization/images/2/25/The_Internet_%28Civ5%29.png/revision/latest?cb=20210317205620" alt="Интернет"><label for="internet">Интернет (увеличивает итог в 2 раза за счёт добавления ещё одного базового значения)</label></div>
+        <div class="check"><input type="checkbox" id="games"><img src="https://static.wikia.nocookie.net/civilization/images/1/1f/International_Project_%28Civ5%29.png/revision/latest/smart/width/40/height/30?cb=20210321205657" alt="Международные игры"><label for="games">Международные игры (работает как Интернет — добавляет ещё одно базовое значение)</label></div>
+        <div class="check"><input type="checkbox" id="hotel"><img src="https://static.wikia.nocookie.net/civilization/images/4/4c/Hotel_%28Civ5%29.png/revision/latest?cb=20210316203457" alt="Отель"><label for="hotel">Отель (прибавляет половину промежуточной суммы от культуры/шедевров к базе)</label></div>
+        <div class="check"><input type="checkbox" id="airport"><img src="https://static.wikia.nocookie.net/civilization/images/2/21/Airport_%28Civ5%29.png/revision/latest?cb=20210316203308" alt="Аэропорт"><label for="airport">Аэропорт (ещё половина той же промежуточной суммы к базе)</label></div>
+        <div class="check"><input type="checkbox" id="infoCenter"><img src="https://static.wikia.nocookie.net/civilization/images/4/4a/National_Visitor_Center_%28Civ5%29.png/revision/latest?cb=20210312151228" alt="Инфоцентр"><label for="infoCenter">Национальный инфоцентр (добавляет полную промежуточную сумму к базе)</label></div>
+        <div class="check"><input type="checkbox" id="masterpiecePolicy"><img src="https://static.wikia.nocookie.net/civilization/images/5/54/Great_Work_of_Art_%28Civ5%29.png/revision/latest?cb=20210321204715" alt="Шедевр"><label for="masterpiecePolicy">Политика, усиливающая вклад шедевров (делает вклад шедевров сильнее)</label></div>
       </div>
 
       <div class="field"><label for="Y">Бонус от тематического размещения</label><input id="Y" type="text" inputmode="decimal" value="0"></div>
       <div class="field"><label for="Z">Количество шедевров в столице</label><input id="Z" type="text" inputmode="decimal" value="0"></div>
-      <div class="field"><label for="L">Культура с обработанных клеток</label><input id="L" type="text" inputmode="decimal" value="0"></div>
-      <div class="field"><label for="W">Культура от чудес</label><input id="W" type="text" inputmode="decimal" value="0"></div>
+      <div class="field"><label for="L">Культура с обработанных клеток (без клетки города)</label><input id="L" type="text" inputmode="decimal" value="0"></div>
+      <div class="field"><label for="W">Культура от чудес (без нац. чудес и кварталов)</label><input id="W" type="text" inputmode="decimal" value="0"></div>
       <button id="reset">Сбросить значения</button>
     </section>
 
@@ -124,7 +97,7 @@
     const checks = ['towerPolicy','internet','games','hotel','airport','infoCenter','masterpiecePolicy'].map($);
     const TOut = $('T');
 
-    function parseNum(v){ return parseFloat((v+'').replace(/\\s+/g,'').replace(',', '.'))||0; }
+    function parseNum(v){ return parseFloat((v+'').replace(/\s+/g,'').replace(',', '.'))||0; }
     function fmt(n){ return (Math.round(n*100)/100).toLocaleString('ru-RU',{maximumFractionDigits:2}); }
 
     function recompute(){
@@ -165,6 +138,7 @@
       const box = garland.getBoundingClientRect();
       const w = box.width || garland.offsetWidth;
       const h = box.height || garland.offsetHeight;
+
       const count = Math.max(60, Math.round((w+h)/10));
       for(let i=0;i<count;i++){
         const t = i/(count-1);
@@ -186,7 +160,6 @@
         const rot = (Math.random()*50 - 25);
 
         const img = new Image();
-        img.referrerPolicy = 'no-referrer';
         img.src = GARLAND_IMG;
         img.alt = '';
         img.className = 'suitcase';
@@ -198,7 +171,6 @@
     }
 
     window.addEventListener('resize', placeGarland);
-    setInterval(placeGarland, 100); // 5 раз в секунду
 
     recompute();
     placeGarland();
